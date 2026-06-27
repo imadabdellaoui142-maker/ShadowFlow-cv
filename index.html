@@ -1560,120 +1560,450 @@ function Landing({onStart}){
     ),
   );
 }
+  executive: h('div', {style:{height:'100%',background:'#fff'}},
+    h('div', {style:{height:'25%',background:'#15191c',padding:'4px'}},
+      h('div', {style:{width:'40%',height:'3px',background:'#fff',marginBottom:'2px'}}),
+      h('div', {style:{width:'20%',height:'1.5px',background:'#7B9EC9'}})
+    ),
+    h('div', {style:{padding:'8px'}},
+      h('div', {style:{width:'30%',height:'3px',background:'#15191c',marginBottom:'4px',borderLeft:'2px solid #7B9EC9',paddingLeft:'2px'}}),
+      h('div', {style:{width:'85%',height:'2px',background:'#e5e7eb',marginBottom:'3px'}}),
+      h('div', {style:{width:'75%',height:'2px',background:'#e5e7eb'}})
+    )
+  ),
+  academic: h('div', {style:{height:'100%',background:'#fff',padding:'8px',textAlign:'center'}},
+    h('div', {style:{width:'50%',height:'4px',background:'#1a1d20',margin:'0 auto 2px'}}),
+    h('div', {style:{width:'30%',height:'1.5px',background:'#6b6280',margin:'0 auto 4px'}}),
+    h('div', {style:{borderTop:'1px double #1a1d20',height:'2px',marginBottom:'6px'}}),
+    h('div', {style:{width:'80%',height:'2px',background:'#e5e7eb',margin:'0 auto 3px'}}),
+    h('div', {style:{width:'85%',height:'2px',background:'#e5e7eb',margin:'0 auto'}})
+  ),
+  creative: h('div', {style:{display:'flex',height:'100%',background:'#fff'}},
+    h('div', {style:{width:'6px',background:'linear-gradient(180deg,#7B9EC9,#9B8FC9)'}}),
+    h('div', {style:{flex:1,padding:'8px'}},
+      h('div', {style:{width:'55%',height:'5px',background:'#1a1d20',marginBottom:'3px'}}),
+      h('div', {style:{width:'25%',height:'2.5px',background:'#7B9EC9',marginBottom:'6px',borderRadius:'1px'}}),
+      h('div', {style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'4px'}},
+        h('div', null, h('div', {style:{width:'80%',height:'2px',background:'#e5e7eb',marginBottom:'2px'}}), h('div', {style:{width:'60%',height:'2px',background:'#e5e7eb'}})),
+        h('div', null, h('div', {style:{width:'90%',height:'2px',background:'#e5e7eb',marginBottom:'2px'}}), h('div', {style:{width:'75%',height:'2px',background:'#e5e7eb'}}))
+      )
+    )
+  )
+};
 
-/* ════════════════════════════════════════════════════════════
-   DASHBOARD
-════════════════════════════════════════════════════════════ */
-function Dashboard({cvs,onCreate,onOpen,onDuplicate,onDelete,onBack,user,onSignOut}){
-  return h('div',{className:'dashboard'},
-    h('div',{className:'nav'},
-      h('div',{className:'nav-logo'},h('div',{className:'nav-mark'},h('span',{style:{width:'14px',height:'2px'}}),h('span',{style:{width:'9px',height:'2px'}})),h('span',{className:'nav-logo-txt'},'ShadowFlow CV')),
-      h('div',{className:'nav-spacer'}),
-      user&&h('span',{style:{fontSize:'0.7rem',color:'#8A9099',fontFamily:'JetBrains Mono,monospace',marginRight:'8px',display:'none',maxWidth:'160px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}},user.email),
-      h('button',{className:'nav-btn nav-btn-ghost',onClick:onBack},'Home'),
-      user&&h('button',{className:'nav-btn nav-btn-outline',onClick:onSignOut,style:{fontSize:'0.72rem'}},'Sign out'),
-    ),
-    h('div',{className:'dash-main'},
-      h('div',{className:'dash-header'},
-        h('div',{className:'dash-title'},'Your CVs'),
-        h('button',{className:'btn-primary',onClick:onCreate},'+ New CV'),
+function TemplateModal({open, onClose, selected, onSelect}){
+  if(!open) return null;
+  return h('div', {className:'modal-overlay', onClick:onClose},
+    h('div', {className:'modal', onClick:e=>e.stopPropagation()},
+      h('div', {className:'modal-header'},
+        h('h3', {className:'modal-title'}, 'Select Design Grid Layout'),
+        h('button', {className:'modal-close', onClick:onClose}, '×')
       ),
-      cvs.length===0?
-        h('div',{className:'dash-empty'},
-          h('div',{className:'dash-empty-icon'},'📄'),
-          h('h3',null,'No CVs yet'),
-          h('p',null,'Create your first CV — it takes about five minutes.'),
-          h('button',{className:'btn-primary',onClick:onCreate},'Create your first CV'),
-        )
-      :
-        h('div',{className:'cv-grid'},
-          cvs.map(cv=>h('div',{key:cv.id,className:'cv-card'},
-            h('div',{onClick:()=>onOpen(cv.id)},
-              h('div',{className:'cv-card-preview'},
-                h('div',{className:'cv-thumb'},
-                  h('div',{className:'cv-thumb-name'},cv.personal.fullName||'Untitled'),
-                  h('div',{className:'cv-thumb-role'},(cv.personal.title||'No title').toUpperCase()),
-                  h('div',{className:'cv-thumb-line'}),h('div',{className:'cv-thumb-line s'}),
-                )
-              ),
-              h('div',{className:'cv-card-info'},
-                h('div',{className:'cv-card-name'},cv.name),
-                h('div',{className:'cv-card-meta'},TEMPLATES.find(t=>t.id===cv.template)?.name+' · '+new Date(cv.updatedAt).toLocaleDateString()),
-              ),
-            ),
-            h('div',{className:'cv-card-actions'},
-              h('button',{className:'cv-action-btn cv-action-edit',onClick:()=>onOpen(cv.id)},'Edit'),
-              h('button',{className:'cv-action-btn cv-action-dup',onClick:()=>onDuplicate(cv.id)},'Duplicate'),
-              h('button',{className:'cv-action-btn cv-action-del',onClick:()=>{if(confirm('Delete "'+cv.name+'"? This cannot be undone.'))onDelete(cv.id)}},'Delete'),
-            )
-          ))
+      h('div', {className:'modal-body'},
+        TEMPLATES.map(t => h('div', {key:t.id, className:`tpl-card${selected===t.id?' selected':''}`, onClick:()=>{onSelect(t.id); onClose();}},
+          h('div', {className:'tpl-preview'}, TPL_SWATCH[t.id]),
+          h('div', {className:'tpl-name'}, t.name),
+          h('div', {className:'tpl-desc'}, t.desc)
+        ))
+      ),
+      h('div', {className:'modal-footer'},
+        h('button', {className:'btn-secondary', onClick:onClose}, 'Close Configuration')
+      )
+    )
+  );
+}
+
+function ExportModal({open, onClose, cv, onExportPDF, onExportLetter}){
+  if(!open) return null;
+  const issues = validateCV(cv);
+  return h('div', {className:'modal-overlay', onClick:onClose},
+    h('div', {className:'modal', onClick:e=>e.stopPropagation(), style:{maxWidth:'460px'}},
+      h('div', {className:'modal-header'},
+        h('h3', {className:'modal-title'}, 'Export Compilation Hub'),
+        h('button', {className:'modal-close', onClick:onClose}, '×')
+      ),
+      issues.length > 0 && h('div', {className:'export-issues'},
+        h('div', {className:'export-issues-title'}, '⚠️ Optimization Matrix Alerts:'),
+        h('ul', null, issues.map((iss,i)=> h('li', {key:i}, iss)))
+      ),
+      h('div', {className:'export-options'},
+        h('button', {className:'export-opt', onClick:()=>{onExportPDF(); onClose();}},
+          h('div', {className:'export-opt-icon'}, '📄'),
+          h('div', {style:{textAlign:'left'}},
+            h('div', {className:'export-opt-name'}, 'Compile Ultra-HQ Standard PDF'),
+            h('div', {className:'export-opt-desc'}, 'High-fidelity multi-page scalable vector target')
+          )
         ),
-    ),
+        h('button', {className:'export-opt', onClick:()=>{onExportLetter(); onClose();}},
+          h('div', {className:'export-opt-icon'}, '✉️'),
+          h('div', {style:{textAlign:'left'}},
+            h('div', {className:'export-opt-name'}, 'Generate Matching Cover Letter'),
+            h('div', {className:'export-opt-desc'}, 'Syncs font-family paradigms effortlessly')
+          )
+        )
+      ),
+      h('div', {className:'export-note'}, 'All generated file vectors undergo micro-spacing validation to maximize performance against rigid enterprise ATS parsing layers.')
+    )
   );
 }
 
 /* ════════════════════════════════════════════════════════════
-   ROOT APP
+   MASTER APPLICATION COMPONENT
 ════════════════════════════════════════════════════════════ */
 function App(){
-  const [view,setView]=useState('landing'); /* landing | dashboard | builder */
-  const [cvs,setCVs]=useState(()=>store.get('cvs',[]));
-  const [activeCVId,setActiveCVId]=useState(null);
-  const [user,setUser]=useState(null);
-  const [authChecked,setAuthChecked]=useState(false);
-  const [showAuth,setShowAuth]=useState(false);
+  const [user, setUser] = useState(null);
+  const [view, setView] = useState('landing'); /* landing | dashboard | builder */
+  const [cvs, setCvs] = useState([]);
+  const [activeId, setActiveId] = useState(null);
+  const [activeSection, setActiveSection] = useState('personal'); /* personal | experience | education | skills */
+  const [mobilePane, setMobilePane] = useState('editor'); /* editor | preview */
+  
+  /* Modals */
+  const [tplModalOpen, setTplModalOpen] = useState(false);
+  const [exportModalOpen, setExportModalOpen] = useState(false);
+  const [aiOpen, setAiOpen] = useState(false);
+  const [toast, setToast] = useState('');
+  
+  /* Generation Progress State */
+  const [genStatus, setGenStatus] = useState('idle');
+  const [genStep, setGenStep] = useState(0);
+  const [genProgress, setGenProgress] = useState(0);
+  const [genError, setGenError] = useState('');
 
-  /* Check existing session on mount */
-  useEffect(()=>{
-    sb.auth.getSession().then(({data:{session}})=>{
-      if(session?.user)setUser(session.user);
-      setAuthChecked(true);
-    });
-    const {data:{subscription}}=sb.auth.onAuthStateChange((_,session)=>{
-      setUser(session?.user||null);
-    });
-    return ()=>subscription.unsubscribe();
-  },[]);
+  useEffect(() => {
+    const saved = store.get('records', []);
+    setCvs(saved);
+    if(sb) {
+      sb.auth.getSession().then(({data:{session}}) => {
+        if(session) setUser(session.user);
+      });
+    }
+  }, []);
 
-  useEffect(()=>{store.set('cvs',cvs)},[cvs]);
+  const activeCV = useMemo(() => cvs.find(c => c.id === activeId) || null, [cvs, activeId]);
 
-  const createCV=()=>{
-    const cv=blankCV();
-    setCVs(prev=>[cv,...prev]);
-    setActiveCVId(cv.id);
+  const showToast = (msg) => {
+    setToast(msg);
+    setTimeout(() => setToast(''), 3000);
+  };
+
+  const createNewWorkspace = () => {
+    const fresh = blankCV();
+    const updated = [fresh, ...cvs];
+    setCvs(updated);
+    store.set('records', updated);
+    setActiveId(fresh.id);
     setView('builder');
-  };
-  const openCV=(id)=>{setActiveCVId(id);setView('builder')};
-  const duplicateCV=(id)=>{
-    const src=cvs.find(c=>c.id===id);
-    if(!src)return;
-    const copy={...src,id:Date.now().toString(),name:src.name+' (copy)',updatedAt:new Date().toISOString()};
-    setCVs(prev=>[copy,...prev]);
-  };
-  const deleteCV=(id)=>setCVs(prev=>prev.filter(c=>c.id!==id));
-  const saveCV=(updated)=>setCVs(prev=>prev.map(c=>c.id===updated.id?updated:c));
-  const signOut=async()=>{await sb.auth.signOut();setUser(null);setView('landing');};
-
-  const handleStart=()=>{
-    if(user){setView('dashboard');}
-    else{setShowAuth(true);}
+    showToast('Clean core workspace synthesized.');
   };
 
-  const activeCV=cvs.find(c=>c.id===activeCVId);
+  const updateActiveCV = useCallback((updater) => {
+    setCvs(prev => {
+      const next = prev.map(c => {
+        if(c.id === activeId) {
+          const u = typeof updater === 'function' ? updater(c) : { ...c, ...updater };
+          return { ...u, updatedAt: new Date().toISOString() };
+        }
+        return c;
+      });
+      store.set('records', next);
+      return next;
+    });
+  }, [activeId]);
 
-  if(!authChecked)return h('div',{style:{height:'100vh',display:'flex',alignItems:'center',justifyContent:'center',color:'#8A9099',fontFamily:'JetBrains Mono,monospace',fontSize:'0.75rem',letterSpacing:'0.08em'}},'LOADING...');
+  const duplicateCV = (id, e) => {
+    e.stopPropagation();
+    const target = cvs.find(c => c.id === id);
+    if(!target) return;
+    const clone = { ...JSON.parse(JSON.stringify(target)), id: Date.now().toString(), name: `${target.name} (Copy)`, updatedAt: new Date().toISOString() };
+    const next = [clone, ...cvs];
+    setCvs(next);
+    store.set('records', next);
+    showToast('Workspace replicated smoothly.');
+  };
 
-  return h(React.Fragment,null,
-    showAuth&&!user&&h(AuthModal,{onSuccess:(u)=>{setUser(u);setShowAuth(false);setView('dashboard');}}),
-    view==='landing'&&h(Landing,{onStart:handleStart}),
-    view==='dashboard'&&user&&h(Dashboard,{cvs,onCreate:createCV,onOpen:openCV,onDuplicate:duplicateCV,onDelete:deleteCV,onBack:()=>setView('landing'),user,onSignOut:signOut}),
-    view==='builder'&&activeCV&&h(Builder,{cv:activeCV,onBack:()=>setView('dashboard'),onSave:saveCV}),
-    (view==='dashboard'&&!user)&&h(Landing,{onStart:handleStart}),
+  const deleteCV = (id, e) => {
+    e.stopPropagation();
+    const next = cvs.filter(c => c.id !== id);
+    setCvs(next);
+    store.set('records', next);
+    if(activeId === id) setActiveId(null);
+    showToast('Workspace purged.');
+  };
+
+  const executePDFGeneration = async (mode = 'cv') => {
+    setGenError('');
+    setGenStatus('prepare');
+    setGenStep(0);
+    setGenProgress(0.05);
+
+    const stepIntervals = [
+      { prg: 0.25, step: 1, delay: 600 },
+      { prg: 0.55, step: 2, delay: 800 },
+      { prg: 0.85, step: 3, delay: 700 }
+    ];
+
+    for(let i=0; i<stepIntervals.length; i++) {
+      await new Promise(r => setTimeout(r, stepIntervals[i].delay));
+      setGenStep(stepIntervals[i].step);
+      setGenProgress(stepIntervals[i].prg);
+    }
+
+    try {
+      const filename = `${(activeCV?.personal?.fullName || 'ShadowFlow').replace(/\s+/g, '_')}_${mode==='cv'?'CV':'CoverLetter'}.pdf`;
+      const Comp = mode === 'cv' ? TEMPLATE_COMPONENTS[activeCV.template] || CVPreviewModern : CoverLetterDoc;
+      
+      await renderOffscreenAndExport(Comp, { cv: activeCV }, filename, (p) => {
+        setGenProgress(0.85 + (p * 0.15));
+      });
+      
+      setGenStatus('done');
+    } catch(err) {
+      setGenStatus('error');
+      setGenError('Compilation failure inside native canvas parsing threads.');
+    }
+  };
+
+  /* Form Array Mutation Primitives */
+  const addArrayEntry = (field, structure) => {
+    updateActiveCV(prev => ({ ...prev, [field]: [...prev[field], { ...structure, _id: Date.now().toString() }] }));
+  };
+
+  const updateArrayEntry = (field, entryId, subField, val) => {
+    updateActiveCV(prev => ({
+      ...prev,
+      [field]: prev[field].map((item, idx) => {
+        if(item._id === entryId || (!item._id && idx === entryId)) {
+          return { ...item, [subField]: val };
+        }
+        return item;
+      })
+    }));
+  };
+
+  const removeArrayEntry = (field, entryId, index) => {
+    updateActiveCV(prev => ({
+      ...prev,
+      [field]: prev[field].filter((item, idx) => item._id !== entryId && idx !== index)
+    }));
+  };
+
+  if(view === 'landing') {
+    return h('div', {className:'landing anim-fade'},
+      h('nav', {className:'nav'},
+        h('div', {className:'nav-logo'},
+          h('div', {className:'nav-mark'}, h('span', {style:{width:'12px',height:'3px'}}), h('span', {style:{width:'8px',height:'3px'}})),
+          h('span', {className:'nav-logo-txt'}, 'SHADOWFLOW // CV')
+        ),
+        h('div', {className:'nav-spacer'}),
+        user ? h('button', {className:'nav-btn nav-btn-outline', onClick:()=>setView('dashboard')}, 'Console') :
+               h('button', {className:'nav-btn nav-btn-accent', onClick:()=>createNewWorkspace()}, 'Initialize Engine')
+      ),
+      h('header', {className:'hero'},
+        h('div', null,
+          h('div', {className:'hero-eyebrow'}, 'Version 4.1 Production Grid'),
+          h('h1', {className:'hero-h1'}, 'Deconstruct. Optimize. ', h('em', null, 'Execute.')),
+          h('p', {className:'hero-sub'}, 'An asymmetric resume building terminal forged for high-performance engineers and developers. Zero structural drag. Pure ATS optimization.'),
+          h('div', {className:'hero-actions'},
+            h('button', {className:'btn-primary', onClick:()=>createNewWorkspace()}, 'Launch Terminal Workspace'),
+            h('button', {className:'btn-secondary', onClick:()=>setView('dashboard')}, 'Access Dashboard')
+          ),
+          h('div', {className:'hero-trust'},
+            h('span', {className:'trust-badge'}, '⚡ Vector Core Render'),
+            h('span', {className:'trust-badge'}, '🛡️ ATS Mutation Safe')
+          )
+        ),
+        h('div', {className:'hero-preview'},
+          h('div', {className:'hp-bar'}, h('span', {className:'hp-dot',style:{background:'var(--red)'}}), h('span', {className:'hp-dot',style:{background:'var(--amber)'}}), h('span', {className:'hp-dot',style:{background:'var(--green)'}})),
+          h('div', {className:'hp-body'},
+            h('div', {className:'hp-sidebar'},
+              h('div', {className:'hp-field'}, h('div', {className:'hp-field-lbl'}, 'TARGET NODE'), h('div', {className:'hp-field-val'}, 'Senior Software Architect')),
+              h('div', {className:'hp-field'}, h('div', {className:'hp-field-lbl'}, 'PARSING PROFILE'), h('div', {className:'hp-field-val'}, '100% Vector Integrity'))
+            ),
+            h('div', {className:'hp-preview-doc'},
+              h('div', {className:'hp-doc-name'}, 'Imad Eddine Abdellaoui'),
+              h('div', {className:'hp-doc-title'}, 'SYSTEMS ENGINEER // DEV'),
+              h('div', {className:'hp-doc-rule'}),
+              h('div', {className:'hp-doc-sec'}, 'Core Compilers'),
+              h('div', {className:'hp-doc-line'}), h('div', {className:'hp-doc-line s'})
+            )
+          )
+        )
+      )
+    );
+  }
+
+  if(view === 'dashboard') {
+    return h('div', {className:'dashboard anim-fade'},
+      h('nav', {className:'nav'},
+        h('div', {className:'nav-logo', style:{cursor:'pointer'}, onClick:()=>setView('landing')},
+          h('div', {className:'nav-mark'}, h('span', {style:{width:'12px',height:'3px'}}), h('span', {style:{width:'8px',height:'3px'}})),
+          h('span', null, 'SHADOWFLOW')
+        ),
+        h('div', {className:'nav-spacer'}),
+        h('button', {className:'nav-btn nav-btn-accent', onClick:createNewWorkspace}, '+ Synthesize Core')
+      ),
+      h('main', {className:'dash-main'},
+        h('div', {className:'dash-header'},
+          h('h2', {className:'dash-title'}, 'Active Execution Records'),
+          h('div', {style:{fontSize:'0.76rem',color:'var(--ash)',fontFamily:'var(--mono)'}}, `Total Clusters: ${cvs.length}`)
+        ),
+        cvs.length === 0 ? h('div', {className:'dash-empty'},
+          h('div', {className:'dash-empty-icon'}, '📂'),
+          h('h3', null, 'No Data Streams Initialized'),
+          h('p', null, 'Instantiate a fresh schema workspace matrix to begin compiling.'),
+          h('button', {className:'btn-primary', onClick:createNewWorkspace}, 'Synthesize First CV Cluster')
+        ) : h('div', {className:'cv-grid'},
+          cvs.map(c => h('div', {key:c.id, className:'cv-card anim-slide', onClick:()=>{setActiveId(c.id); setView('builder');}},
+            h('div', {className:'cv-card-preview'},
+              h('div', {className:'cv-thumb'},
+                h('div', {className:'cv-thumb-name'}, c.personal.fullName || 'Unidentified Node'),
+                h('div', {className:'cv-thumb-role'}, c.personal.title || 'No Schema Vector Assigned'),
+                h('div', {className:'cv-thumb-line'}), h('div', {className:'cv-thumb-line s'})
+              )
+            ),
+            h('div', {className:'cv-card-info'},
+              h('div', {className:'cv-card-name'}, c.name),
+              h('div', {className:'cv-card-meta'}, `Updated: ${new Date(c.updatedAt).toLocaleDateString()}`)
+            ),
+            h('div', {className:'cv-card-actions'},
+              h('button', {className:'cv-action-btn cv-action-edit', onClick:()=>{setActiveId(c.id); setView('builder');}}, 'Mount'),
+              h('button', {className:'cv-action-btn cv-action-dup', onClick:(e)=>duplicateCV(c.id, e)}, 'Clone'),
+              h('button', {className:'cv-action-btn cv-action-del', onClick:(e)=>deleteCV(c.id, e)}, 'Purge')
+            )
+          ))
+        )
+      )
+    );
+  }
+
+  /* BUILDER VIEW ENGINE GRID */
+  return h('div', {className:'builder anim-fade'},
+    h('nav', {className:'nav'},
+      h('button', {className:'nav-btn nav-btn-ghost', style:{paddingLeft:0}, onClick:()=>setView('dashboard')}, '← Terminal'),
+      h('div', {className:'nav-logo'}, h('span', {className:'nav-doc-name'}, activeCV?.name || 'Untitled Workspace')),
+      h('div', {className:'nav-spacer'}),
+      h('button', {className:'nav-btn nav-btn-outline', onClick:()=>setTplModalOpen(true)}, '📐 Grid'),
+      h('button', {className:'nav-btn nav-btn-accent', onClick:()=>setExportModalOpen(true)}, 'Compile ↓')
+    ),
+    h('div', {className:`builder-body show-${mobilePane}`},
+      h('div', {className:'builder-nav'},
+        h('div', {className:'bn-section'}, 'Data Registries'),
+        h('div', {className:`bn-item${activeSection==='personal'?' active':''}`, onClick:()=>setActiveSection('personal')}, h('span', {className:'bn-item-dot'}), 'Core Identity'),
+        h('div', {className:`bn-item${activeSection==='experience'?' active':''}`, onClick:()=>setActiveSection('experience')}, h('span', {className:'bn-item-dot'}), 'Experience'),
+        h('div', {className:`bn-item${activeSection==='education'?' active':''}`, onClick:()=>setActiveSection('education')}, h('span', {className:'bn-item-dot'}), 'Education Matrix'),
+        h('div', {className:`bn-item${activeSection==='skills'?' active':''}`, onClick:()=>setActiveSection('skills')}, h('span', {className:'bn-item-dot'}), 'Capabilities')
+      ),
+      h('div', {className:'builder-editor'},
+        h('div', {className:'editor-body'},
+          activeSection === 'personal' && h('div', {className:'form-section'},
+            h('div', {className:'form-section-title'}, '01 // Core Identification Keys'),
+            h('div', {className:'form-row'},
+              h('div', {className:'form-field'}, h('label', {className:'form-label'}, 'Full Moniker'), h('input', {className:'form-input', value:activeCV?.personal?.fullName || '', onChange:e=>updateActiveCV({personal:{...activeCV.personal, fullName:e.target.value}}), placeholder:'e.g. Imad Eddine Abdellaoui'})),
+              h('div', {className:'form-field'}, h('label', {className:'form-label'}, 'Target Role Title'), h('input', {className:'form-input', value:activeCV?.personal?.title || '', onChange:e=>updateActiveCV({personal:{...activeCV.personal, title:e.target.value}}), placeholder:'e.g. Systems Engineer'}))
+            ),
+            h('div', {className:'form-row'},
+              h('div', {className:'form-field'}, h('label', {className:'form-label'}, 'Secure Email Path'), h('input', {className:'form-input', type:'email', value:activeCV?.personal?.email || '', onChange:e=>updateActiveCV({personal:{...activeCV.personal, email:e.target.value}}), placeholder:'node@domain.com'})),
+              h('div', {className:'form-field'}, h('label', {className:'form-label'}, 'Network Contact Node'), h('input', {className:'form-input', value:activeCV?.personal?.phone || '', onChange:e=>updateActiveCV({personal:{...activeCV.personal, phone:e.target.value}}), placeholder:'+213 XXXXXXXXX'}))
+            ),
+            h('div', {className:'form-row full'},
+              h('div', {className:'form-field'}, h('label', {className:'form-label'}, 'Abstract Executive Overview'), h('textarea', {className:'form-textarea', value:activeCV?.personal?.summary || '', onChange:e=>updateActiveCV({personal:{...activeCV.personal, summary:e.target.value}}), placeholder:'Describe your technical velocity matrix...'}))
+            )
+          ),
+          activeSection === 'experience' && h('div', {className:'form-section'},
+            h('div', {className:'form-section-title'}, '02 // Structural Log History'),
+            activeCV?.experience?.map((exp, idx) => h('div', {key:exp._id || idx, className:'entry-card'},
+              h('div', {className:'entry-card-header'},
+                h('div', null, h('div', {className:'entry-card-title'}, exp.title || 'Role Vector Unassigned'), h('div', {className:'entry-card-sub'}, exp.company || 'Enterprise Node')),
+                h('button', {className:'entry-del', onClick:()=>removeArrayEntry('experience', exp._id, idx)}, 'Purge')
+              ),
+              h('div', {className:'form-row'},
+                h('input', {className:'form-input', value:exp.title || '', onChange:e=>updateArrayEntry('experience', exp._id || idx, 'title', e.target.value), placeholder:'Role Title'}),
+                h('input', {className:'form-input', value:exp.company || '', onChange:e=>updateArrayEntry('experience', exp._id || idx, 'company', e.target.value), placeholder:'Enterprise'})
+              ),
+              h('div', {className:'form-row', style:{marginTop:'8px'}},
+                h('input', {className:'form-input', value:exp.startDate || '', onChange:e=>updateArrayEntry('experience', exp._id || idx, 'startDate', e.target.value), placeholder:'Start Date (e.g. 2024)'}),
+                h('input', {className:'form-input', value:exp.endDate || '', onChange:e=>updateArrayEntry('experience', exp._id || idx, 'endDate', e.target.value), placeholder:'End Date (or Present)'})
+              ),
+              h('textarea', {className:'form-textarea', style:{marginTop:'8px'}, value:exp.description || '', onChange:e=>updateArrayEntry('experience', exp._id || idx, 'description', e.target.value), placeholder:'Log quantifiable architecture impacts and systems built...'})
+            )),
+            h('button', {className:'add-entry-btn', onClick:()=>addArrayEntry('experience', {title:'',company:'',startDate:'',endDate:'',description:''})}, '+ Inject Timeline Node')
+          ),
+          activeSection === 'education' && h('div', {className:'form-section'},
+            h('div', {className:'form-section-title'}, '03 // Academic Accretion Logs'),
+            activeCV?.education?.map((edu, idx) => h('div', {key:edu._id || idx, className:'entry-card'},
+              h('div', {className:'entry-card-header'},
+                h('div', null, h('div', {className:'entry-card-title'}, edu.degree || 'Degree Vector'), h('div', {className:'entry-card-sub'}, edu.school || 'Academy Platform')),
+                h('button', {className:'entry-del', onClick:()=>removeArrayEntry('education', edu._id, idx)}, 'Purge')
+              ),
+              h('div', {className:'form-row'},
+                h('input', {className:'form-input', value:edu.degree || '', onChange:e=>updateArrayEntry('education', edu._id || idx, 'degree', e.target.value), placeholder:'Qualification'}),
+                h('input', {className:'form-input', value:edu.school || '', onChange:e=>updateArrayEntry('education', edu._id || idx, 'school', e.target.value), placeholder:'Institution/Platform'})
+              ),
+              h('div', {className:'form-row', style:{marginTop:'8px'}},
+                h('input', {className:'form-input', value:edu.startDate || '', onChange:e=>updateArrayEntry('education', edu._id || idx, 'startDate', e.target.value), placeholder:'Start'}),
+                h('input', {className:'form-input', value:edu.endDate || '', onChange:e=>updateArrayEntry('education', edu._id || idx, 'endDate', e.target.value), placeholder:'End'})
+              )
+            )),
+            h('button', {className:'add-entry-btn', onClick:()=>addArrayEntry('education', {degree:'',school:'',startDate:'',endDate:''})}, '+ Inject Academic Schema')
+          ),
+          activeSection === 'skills' && h('div', {className:'form-section'},
+            h('div', {className:'form-section-title'}, '04 // Direct Capability Matrix'),
+            activeCV?.skills?.map((sk, idx) => h('div', {key:sk._id || idx, className:'flex items-center gap-2', style:{marginBottom:'8px'}},
+              h('input', {className:'form-input', style:{flex:1}, value:sk.name || '', onChange:e=>updateArrayEntry('skills', sk._id || idx, 'name', e.target.value), placeholder:'Capability Parameter (e.g. Laravel, Python)'}),
+              h('input', {className:'form-input', type:'number', style:{width:'80px'}, value:sk.level || 80, onChange:e=>updateArrayEntry('skills', sk._id || idx, 'level', parseInt(e.target.value)||80), placeholder:'%'}),
+              h('button', {className:'entry-del', onClick:()=>removeArrayEntry('skills', sk._id, idx)}, '×')
+            )),
+            h('button', {className:'add-entry-btn', onClick:()=>addArrayEntry('skills', {name:'',level:85})}, '+ Append Skill Vector')
+          )
+        ),
+        h('div', {className:'editor-actionbar'},
+          h('button', {className:'ai-btn', onClick:()=>setAiOpen(true)}, h('div', {className:'ai-dot'}), 'Query AI Copilot'),
+          h('div', {className:'nav-spacer'}),
+          h('button', {className:'btn-primary', style:{minHeight:'44px'}, onClick:()=>showToast('Workspace buffers written to cluster local.')}, 'Persist State')
+        )
+      ),
+      h('div', {className:'builder-preview'},
+        h('div', {className:'preview-top'},
+          h('span', {className:'preview-label'}, 'Live High-Res Node State'),
+          h('div', {className:'preview-actions'},
+            h('button', {className:'preview-action preview-action-template', onClick:()=>setTplModalOpen(true)}, 'Switch Layout Grid')
+          )
+        ),
+        h('div', {className:'preview-paper-wrap'},
+          activeCV && h(CVPreview, {cv: activeCV})
+        )
+      )
+    ),
+    h('div', {className:'mobile-tabbar'},
+      h('button', {className:`mtab${mobilePane==='editor'?' active':''}`, onClick:()=>setMobilePane('editor')}, h('span', {className:'mtab-icon'}, '📝'), h('span', {className:'mtab-label'}, 'Registry')),
+      h('button', {className:`mtab${mobilePane==='preview'?' active':''}`, onClick:()=>setMobilePane('preview')}, h('span', {className:'mtab-icon'}, '👁️'), h('span', {className:'mtab-label'}, 'Viewport')),
+      h('button', {className:'mtab', onClick:()=>setAiOpen(true)}, h('span', {className:'mtab-icon'}, '✨'), h('span', {className:'mtab-label'}, 'AI Copilot'), h('div', {className:'mtab-badge'}))
+    ),
+    h(TemplateModal, {open: tplModalOpen, onClose:()=>setTplModalOpen(false), selected: activeCV?.template || 'modern', onSelect: (id)=>updateActiveCV({template:id})}),
+    h(ExportModal, {open: exportModalOpen, onClose:()=>setExportModalOpen(false), cv: activeCV, onExportPDF:()=>executePDFGeneration('cv'), onExportLetter:()=>executePDFGeneration('letter')}),
+    h(AIPanel, {open: aiOpen, onClose:()=>setAiOpen(false), cv: activeCV, onApply:(f,v)=> {
+      if(f === 'summary') updateActiveCV({personal:{...activeCV.personal, summary:v}});
+      showToast('AI schema adjustments parsed into stream.');
+    }}),
+    h(GenerationModal, {status: genStatus, activeStep: genStep, progress: genProgress, error: genError, docName: activeCV?.name || 'CV Document', onClose:()=>setGenStatus('idle'), onRetry:()=>executePDFGeneration()}),
+    h('div', {className:`toast${toast?' show':''}`}, toast)
   );
 }
 
-const root=ReactDOM.createRoot?ReactDOM.createRoot(document.getElementById('root')):null;
-if(root){root.render(h(App))}else{ReactDOM.render(h(App),document.getElementById('root'))}
+/* ════════════════════════════════════════════════════════════
+   APPLICATION BOOTSTRAP INITIALIZER
+════════════════════════════════════════════════════════════ */
+const targetContainer = document.getElementById('root');
+if(ReactDOM.createRoot){
+  ReactDOM.createRoot(targetContainer).render(h(App));
+} else {
+  ReactDOM.render(h(App), targetContainer);
+}
+<\/script>
+</body>
+</html>
+
 </script>
 </body>
 </html>
